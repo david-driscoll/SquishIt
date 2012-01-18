@@ -57,6 +57,7 @@ namespace SquishIt.Framework.Base
         private static Dictionary<string,Dictionary<string, GroupBundle>> groupBundlesCache = new Dictionary<string, Dictionary<string, GroupBundle>>();
 
         private IBundleCache bundleCache;
+        private bool disableMinify = false;
 
         protected BundleBase(IFileWriterFactory fileWriterFactory, IFileReaderFactory fileReaderFactory, IDebugStatusReader debugStatusReader, ICurrentDirectoryWrapper currentDirectoryWrapper, IHasher hasher, IBundleCache bundleCache)
         {
@@ -264,6 +265,12 @@ namespace SquishIt.Framework.Base
             debugStatusReader.ForceRelease();
             return (T)this;
         }
+        
+        public T DisableMinify(bool state = true)
+        {
+            disableMinify = state;
+            return (T)this;
+        }
 
         public T WithOutputBaseHref(string href)
         {
@@ -459,7 +466,7 @@ namespace SquishIt.Framework.Base
                             if (renderTo.Contains("#"))
                             {
                                 hashInFileName = true;
-                                minifiedContent = Minifier.Minify(BeforeMinify(outputFile, files, arbitrary));
+                                minifiedContent = disableMinify ? BeforeMinify(outputFile, files) : Minifier.Minify(BeforeMinify(outputFile, files));
                                 hash = hasher.GetHash(minifiedContent);
                                 renderToPath = renderToPath.Replace("#", hash);
                                 outputFile = outputFile.Replace("#", hash);
@@ -471,7 +478,7 @@ namespace SquishIt.Framework.Base
                             }
                             else
                             {
-                                minifiedContent = minifiedContent ?? Minifier.Minify(BeforeMinify(outputFile, files, arbitrary));
+                                minifiedContent = minifiedContent ?? (disableMinify ? BeforeMinify(outputFile, files) : Minifier.Minify(BeforeMinify(outputFile, files)));
                                 renderer.Render(minifiedContent, outputFile);
                             }
 
