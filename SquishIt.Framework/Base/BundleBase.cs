@@ -326,6 +326,11 @@ namespace SquishIt.Framework.Base
             return result;
         }
 
+        public void ClearGroupBundlesCache()
+        {
+            groupBundlesCache.Clear();
+        }
+
         protected string RenderDebug(string name = null)
         {
             string content = null;
