@@ -54,7 +54,7 @@ namespace SquishIt.Framework.Base
             { DEFAULT_GROUP, new GroupBundle() }
         };
 
-        private static Dictionary<string,Dictionary<string, GroupBundle>> groupBundlesCache = new Dictionary<string, Dictionary<string, GroupBundle>>();
+        private static Dictionary<string, Dictionary<string, GroupBundle>> groupBundlesCache = new Dictionary<string, Dictionary<string, GroupBundle>>();
 
         private IBundleCache bundleCache;
         private bool disableMinify = false;
@@ -198,7 +198,8 @@ namespace SquishIt.Framework.Base
             }
         }
 
-        public T WithoutTypeAttribute () {
+        public T WithoutTypeAttribute()
+        {
             this.typeless = true;
             return (T)this;
         }
@@ -229,7 +230,7 @@ namespace SquishIt.Framework.Base
             var content = string.Format(format, values);
             return AddString(content);
         }
-        
+
         public T AddRemote(string localPath, string remotePath)
         {
             return AddRemote(localPath, remotePath, false);
@@ -266,7 +267,7 @@ namespace SquishIt.Framework.Base
             debugStatusReader.ForceRelease();
             return (T)this;
         }
-        
+
         public T DisableMinify(bool state = true)
         {
             disableMinify = state;
@@ -335,7 +336,7 @@ namespace SquishIt.Framework.Base
         protected string RenderDebug(string name = null)
         {
             string content = null;
-            
+
             DependentFiles.Clear();
 
             var renderedFiles = new HashSet<string>();
@@ -478,7 +479,7 @@ namespace SquishIt.Framework.Base
                             if (renderTo.Contains("#"))
                             {
                                 hashInFileName = true;
-                                minifiedContent = disableMinify ? BeforeMinify(outputFile, files, arbitrary) : Minifier.Minify(BeforeMinify(outputFile, files, arbitrary));
+                                minifiedContent = disableMinify ? BeforeMinify(outputFile, uniqueFiles, arbitrary) : Minifier.Minify(BeforeMinify(outputFile, uniqueFiles, arbitrary));
                                 hash = hasher.GetHash(minifiedContent);
                                 renderToPath = renderToPath.Replace("#", hash);
                                 outputFile = outputFile.Replace("#", hash);
@@ -521,7 +522,7 @@ namespace SquishIt.Framework.Base
                             }
 
                             content += String.Concat(GetFilesForRemote(remoteAssetPaths, groupBundle), renderedTag);
-                        }    
+                        }
                     }
                 }
                 finally
