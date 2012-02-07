@@ -188,7 +188,7 @@
   <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>$(SolutionDir)tools\sign-assembly $(SolutionDir)packages\Jurassic.2.1.1\lib\Jurassic.dll</PreBuildEvent>
+    <PreBuildEvent>$(SolutionDir)\tools\sign-assembly $(SolutionDir)\packages\Jurassic.2.1.1\lib\Jurassic.dll</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
