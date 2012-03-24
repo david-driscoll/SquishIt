@@ -8,6 +8,7 @@ using SquishIt.Framework.Utilities;
 using SquishIt.Tests.Helpers;
 using SquishIt.Tests.Stubs;
 using SquishIt.Framework.Tests.Mocks;
+using SquishIt.Framework;
 
 namespace SquishIt.Tests
 {
@@ -80,8 +81,8 @@ namespace SquishIt.Tests
             cssBundle1.Add("/css/first.css", "/css/second.css");
             cssBundle2.Add("/css/first.css").Add("/css/second.css");
 
-            var cssBundle1Assets = cssBundle1.GroupBundles["default"].Assets;
-            var cssBundle2Assets = cssBundle1.GroupBundles["default"].Assets;
+            var cssBundle1Assets = cssBundle1.bundleState.Assets;
+            var cssBundle2Assets = cssBundle1.bundleState.Assets;
 
             Assert.AreEqual(cssBundle1Assets.Count, cssBundle2Assets.Count);
             for (var i = 0; i < cssBundle1Assets.Count; i++)
@@ -134,6 +135,42 @@ namespace SquishIt.Tests
             Assert.AreEqual(1, cssBundleFactory.FileWriterFactory.Files.Count);
             Assert.AreEqual ("li{margin-bottom:.1em;margin-left:0;margin-top:.1em}th{font-weight:normal;vertical-align:bottom}.FloatRight{float:right}.FloatLeft{float:left}li{margin-bottom:.1em;margin-left:0;margin-top:.1em}th{font-weight:normal;vertical-align:bottom}.FloatRight{float:right}.FloatLeft{float:left}", cssBundleFactory.FileWriterFactory.Files[TestUtilities.PrepareRelativePath (@"css\output.css")]);
         }
+
+        [Test]
+        public void CanBundleCssVaryingOutputBaseHrefRendersIndependantUrl()
+        {
+            //Verify that depending on basehref, we get independantly cached and returned URLs
+            CSSBundle cssBundle = cssBundleFactory
+                .WithHasher(hasher)
+                .WithDebuggingEnabled(false)
+                .Create();
+
+            cssBundleFactory.FileReaderFactory.SetContents(css);
+
+            string tag = cssBundle
+                            .Add("/css/first.css")
+                            .Add("/css/second.css")
+                            .WithOutputBaseHref("http//subdomain.domain.com")
+                            .Render("/css/output.css");
+
+            CSSBundle cssBundleNoBaseHref = cssBundleFactory
+                .WithHasher(hasher)
+                .WithDebuggingEnabled(false)
+                .Create();
+
+            cssBundleFactory.FileReaderFactory.SetContents(css);
+
+            string tagNoBaseHref = cssBundleNoBaseHref
+                            .Add("/css/first.css")
+                            .Add("/css/second.css")
+                            .Render("/css/output.css");
+
+           Assert.AreEqual("<link rel=\"stylesheet\" type=\"text/css\" href=\"http//subdomain.domain.com/css/output.css?r=C33D1225DED9D889876CEE87754EE305\" />", tag);
+           Assert.AreEqual("<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/output.css?r=C33D1225DED9D889876CEE87754EE305\" />", tagNoBaseHref);
+           Console.WriteLine("WithBaseHref:" + tag);
+           Console.WriteLine("NoBaseHref:" + tagNoBaseHref);
+        }
+
 
         [Test]
         public void CanBundleCssWithQueryStringParameter()
@@ -274,6 +311,33 @@ namespace SquishIt.Tests
             Assert.AreEqual("#header{color:#4d926f;background-image:url(image/mygif.gif)}", contents);
         }
 
+        [Test]
+        public void CanBundleCssWithNestedLess()
+        {
+            string importCss =
+                        @"
+                        @import 'other.less';
+                        #header {
+                            color: #4D926F;
+                        }";
+
+            CSSBundle cssBundle = cssBundleFactory
+                .WithDebuggingEnabled(false)
+                .WithContents(importCss)
+                .Create();
+
+            TestUtilities.CreateFile("other.less", "#footer{color:#ffffff}");
+
+            cssBundle
+                .Add("~/css/test.less")
+                .Render("~/css/output_test.css");
+
+            TestUtilities.DeleteFile("other.less");
+
+            Assert.AreEqual("#footer{color:#fff}#header{color:#4d926f}", cssBundleFactory.FileWriterFactory.Files[TestUtilities.PrepareRelativePath(@"css\output_test.css")]);
+            Assert.Contains(FileSystem.ResolveAppRelativePathToFileSystem("css/other.less"), cssBundle.DependentFiles);
+        }
+        
         [Test]
         public void CanBundleCssWithLessWithLessDotCssFileExtension()
         {
@@ -840,7 +904,7 @@ namespace SquishIt.Tests
                         .Add(path)
                         .Render("~/output.css");
 
-                var expectedTag = string.Format("<link rel=\"stylesheet\" type=\"text/css\" href=\"/{0}/file1.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"/{0}/file2.css\" />\n", path);
+                var expectedTag = string.Format("<link rel=\"stylesheet\" type=\"text/css\" href=\"{0}/file1.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"{0}/file2.css\" />\n", path);
                 Assert.AreEqual(expectedTag, TestUtilities.NormalizeLineEndings(tag));
             }
         }
@@ -866,7 +930,7 @@ namespace SquishIt.Tests
                         .Add(path)
                         .Render("~/output.css");
 
-                var expectedTag = string.Format("<link rel=\"stylesheet\" type=\"text/css\" href=\"/{0}/file1.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"/{0}/file2.css\" />\n", path);
+                var expectedTag = string.Format("<link rel=\"stylesheet\" type=\"text/css\" href=\"{0}/file1.css\" />\n<link rel=\"stylesheet\" type=\"text/css\" href=\"{0}/file2.css\" />\n", path);
                 Assert.AreEqual(expectedTag, TestUtilities.NormalizeLineEndings(tag));
             }
         }

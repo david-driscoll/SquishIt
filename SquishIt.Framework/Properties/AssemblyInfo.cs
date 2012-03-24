@@ -36,7 +36,7 @@ using System.Security;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.8.5.0")]
-[assembly: AssemblyFileVersion("0.8.5.0")]
+[assembly: AssemblyVersion("0.8.6.0")]
+[assembly: AssemblyFileVersion("0.8.6.0")]
 [assembly: InternalsVisibleTo("SquishIt.Tests, PublicKey=00240000048000009400000006020000002400005253413100040000010001007bcfecf8b904b25321b47b8f6600735cc934622d799074c0e7447641f19dba69881fffc3cebc4e2703c51d9881a3b71b2609949ee251304ee76af0f8f887e6ddbadbd7ca51f30392185d2a188ba82a2c873635009e8682d181588badc92b47d253d5181eeb60094605f9eab025d476e29bea8390444309f68894f093b655beb7")]
 [assembly: AllowPartiallyTrustedCallers]

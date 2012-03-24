@@ -73,11 +73,22 @@ namespace SquishIt.Framework.Css
             {
                 try
                 {
-                    currentDirectoryWrapper.SetCurrentDirectory(Path.GetDirectoryName(file));
+                    var dir = Path.GetDirectoryName(file);
+                    currentDirectoryWrapper.SetCurrentDirectory(dir);
                     var content = ReadFile(file);
                     var engineFactory = new EngineFactory();
                     var engine = engineFactory.GetEngine();
-                    return engine.TransformToCss(content, file);
+                    var css = engine.TransformToCss(content, file);
+
+                    var appPath = FileSystem.ResolveFileSystemPathToAppRelative(dir);
+                    var importPaths = engine.GetImports();
+                    foreach (var importPath in importPaths)
+                    {
+                        var import = FileSystem.ResolveAppRelativePathToFileSystem(Path.Combine(appPath, importPath));
+                        DependentFiles.Add(import);
+                    }
+
+                    return css;
                 }
                 finally
                 {
@@ -158,31 +169,23 @@ namespace SquishIt.Framework.Css
             return CSSPathRewriter.RewriteCssPaths(outputFile, file, css, fileHasher, asImport);
         }
 
-        internal override Dictionary<string, GroupBundle> BeforeRenderDebug()
+        internal override void BeforeRenderDebug()
         {
-            var modifiedGroupBundles = new Dictionary<string, GroupBundle>(GroupBundles);
-
-            foreach (var groupBundleKVP in modifiedGroupBundles)
+            foreach (var asset in bundleState.Assets)
             {
-                var groupBundle = groupBundleKVP.Value;
-                foreach (var asset in groupBundle.Assets)
+                var localPath = asset.LocalPath;
+                if (localPath.ToLower().EndsWith(".less") || localPath.ToLower().EndsWith(".less.css"))
                 {
-                    var localPath = asset.LocalPath;
-                    if (localPath.ToLower().EndsWith(".less") || localPath.ToLower().EndsWith(".less.css"))
+                    string outputFile = FileSystem.ResolveAppRelativePathToFileSystem(localPath);
+                    string css = ProcessLess(outputFile);
+                    outputFile += ".debug.css";
+                    using (var fileWriter = fileWriterFactory.GetFileWriter(outputFile))
                     {
-                        string outputFile = FileSystem.ResolveAppRelativePathToFileSystem(localPath);
-                        string css = ProcessLess(outputFile);
-                        outputFile += ".debug.css";
-                        using (var fileWriter = fileWriterFactory.GetFileWriter(outputFile))
-                        {
-                            fileWriter.Write(css);
-                        }
-                        asset.LocalPath = localPath + ".debug.css";
+                        fileWriter.Write(css);
                     }
+                    asset.LocalPath = localPath + ".debug.css";
                 }
             }
-
-            return modifiedGroupBundles;
         }
     }
 }

@@ -1,15 +1,15 @@
 <package>
   <metadata>
     <id>SquishIt.Mvc</id>
-    <version>0.8.5</version>
-    <authors>Justin Etheredge by David D</authors>
-	<owners>Justin Etheredge by David D</owners>
+    <version>0.8.6</version>
+    <authors>Justin Etheredge - signed by David D</authors>
+	<owners>Justin Etheredge - signed by David D</owners>
     <description>
       ASP.NET MVC Extensions for SquishIt
     </description>
 	<projectUrl>https://github.com/jetheredge/SquishIt</projectUrl>
 	<dependencies>
-	  <dependency id="SquishIt" version="0.8.5" />
+	  <dependency id="SquishIt" version="0.8.6" />
     </dependencies>
   </metadata>
   <files>

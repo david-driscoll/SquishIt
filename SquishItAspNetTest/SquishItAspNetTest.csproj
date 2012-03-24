@@ -63,6 +63,8 @@
     <Reference Include="System.Web.Mobile" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Global.asax" />
+    <Content Include="js\alert.js" />
     <Content Include="Medals.aspx" />
     <Content Include="css\CodeThinked.css" />
     <Content Include="css\extra\extra.css" />
@@ -95,6 +97,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
     <Compile Include="Medals.aspx.cs">
       <DependentUpon>Medals.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -165,5 +170,4 @@
     </MonoDevelop>
   </ProjectExtensions>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v9.0\WebApplications\Microsoft.WebApplication.targets" />
 </Project>
